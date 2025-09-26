@@ -10,14 +10,21 @@ import cartRouter from "./src/routes/cart.js"
 
 const app = express();
 
+const corsOptions = {
+  origin: [
+    'https://smokewear.vercel.app',  // Your frontend domain
+    'http://localhost:3000',         // For local development
+    'http://localhost:5173'          // If using Vite
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
 //middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: ["http://localhost:5173", "https://smokewears.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 //Routers
 app.use("/api/users", authRouter);
@@ -28,5 +35,5 @@ app.use("/api/cart/", cartRouter);
 await connectDB();
 
 app.listen(process.env.PORT, () => {
-    console.log("server is running successfully");
+  console.log("server is running successfully");
 })
