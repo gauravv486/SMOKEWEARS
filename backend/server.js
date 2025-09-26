@@ -24,7 +24,11 @@ const corsOptions = {
 //middleware
 app.use(express.json());
 app.use(cookieParser());
+// Apply CORS middleware BEFORE routes
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
 
 //Routers
 app.use("/api/users", authRouter);
