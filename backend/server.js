@@ -7,37 +7,42 @@ import authRouter from "./src/routes/auth.js"
 import productRouter from "./src/routes/product.js"
 import cartRouter from "./src/routes/cart.js"
 
-
 const app = express();
 
 const corsOptions = {
   origin: [
-    'https://smokewear.vercel.app',  // Your frontend domain
-    'http://localhost:3000',         // For local development
-    'http://localhost:5173'          // If using Vite
+    'https://smokewear.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
 
-//middleware
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
-// Apply CORS middleware BEFORE routes
 app.use(cors(corsOptions));
 
-// Handle preflight requests explicitly
+// Handle preflight requests
 app.options('*', cors(corsOptions));
 
-//Routers
+// Routes
 app.use("/api/users", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart/", cartRouter);
 
-
+// Connect to database
 await connectDB();
 
-app.listen(process.env.PORT, () => {
-  console.log("server is running successfully");
-})
+// For local development only
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log("server is running successfully");
+  });
+}
+
+// Export for Vercel (REQUIRED)
+export default app;
