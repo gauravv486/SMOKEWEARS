@@ -1,48 +1,31 @@
 import 'dotenv/config';
-import express from "express";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import connectDB from "./src/config/database.js";
-import authRouter from "./src/routes/auth.js"
-import productRouter from "./src/routes/product.js"
-import cartRouter from "./src/routes/cart.js"
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import connectDB from './src/config/database.js';
+import authRouter from './src/routes/auth.js';
+import productRouter from './src/routes/product.js';
+import cartRouter from './src/routes/cart.js';
 
 const app = express();
 
-const corsOptions = {
-  origin: [
-    'https://smokewear.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:5173'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
-
-// Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: ["http://localhost:5173", "https://smokewear.vercel.app/"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
-
-// Routes
 app.use("/api/users", authRouter);
 app.use("/api/product", productRouter);
-app.use("/api/cart/", cartRouter);
+app.use("/api/cart", cartRouter);
 
-// Connect to database
-await connectDB();
-
-// For local development only
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log("server is running successfully");
-  });
-}
-
-// Export for Vercel (REQUIRED)
+// Export app for serverless, but also support local dev
 export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+  await connectDB();
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => console.log(`server is running on ${port}`));
+}
